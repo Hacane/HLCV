@@ -14,6 +14,8 @@ import match_module
 # note: assume that query and model images are in the same order,
 # i.e. correct answer for i-th query image is the i-th model image
 #
+
+
 def plot_rpc(D, plot_color):
     recall = []
     precision = []
@@ -72,5 +74,3 @@ def compare_dist_rpc(model_images, query_images, dist_types, hist_type, num_bins
     # legend(dist_types, 'Location', 'Best')
 
     plt.legend(dist_types, loc='best')
-
-
