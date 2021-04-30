@@ -1,11 +1,13 @@
 import numpy as np
 from numpy import histogram as hist
 # some_file.py
+import matplotlib.pyplot as plt
 import sys
 # insert at 1, 0 is the script path (or '' in REPL)
 sys.path.insert(1, '../filter-Q1')
 import gauss_module
 from gauss_module import gaussderiv
+import math
 
 
 #  compute histogram of image intensities, histogram should be normalized so that sum of all values equals 1
@@ -16,9 +18,10 @@ from gauss_module import gaussderiv
 def normalized_hist(img_gray, num_bins):
     assert len(img_gray.shape) == 2, 'image dimension mismatch'
     assert img_gray.dtype == 'float', 'incorrect image type'
-    
+
+    bins=np.linspace(0,1,num_bins+1)
     hists = np.zeros((num_bins))
-    bins=np.linspace(0,255,num_bins+1,endpoint=True)
+
     offset=255/num_bins
 
     # execute the loop for each pixel in the image 
@@ -41,17 +44,22 @@ def rgb_hist(img_color, num_bins):
     assert len(img_color.shape) == 3, 'image dimension mismatch'
     assert img_color.dtype == 'float', 'incorrect image type'
 
-    # define a 3D histogram  with "num_bins^3" number of entries
-    hists = np.zeros((num_bins, num_bins, num_bins+1))
-    offset=255/num_bins
+   # define a 3D histogram  with "num_bins^3" number of entries
+    hists = np.zeros((num_bins, num_bins, num_bins))
+    step=256/num_bins   
     # execute the loop for each pixel in the image 
     for i in range(img_color.shape[0]):
-        for i in range(img_color.shape[1]):
+        for j in range(img_color.shape[1]):
             # increment a histogram bin which corresponds to the value of pixel i,j; h(R,G,B)
-            hists[(int(img_color[i][i][0]//offset)%num_bins),(int(img_color[i][i][1]//offset)%num_bins),(int(img_color[i][i][2]//offset)%num_bins)]+=1
-            pass
+            # ...
+            r=math.floor(img_color[i,j,0]/step)
+            g=math.floor(img_color[i,j,1]/step)
+            b=math.floor(img_color[i,j,2]/step)
+            hists[r,g,b]+=1
+
     # normalize the histogram such that its integral (sum) is equal 1
-    hists=hists/np.sum(hists)
+    # your code here
+    hists/=np.sum(hists)
     hists = hists.reshape(hists.size)
     return hists
 
@@ -87,6 +95,7 @@ def rg_hist(img_color, num_bins):
 
     hists = hists.reshape(hists.size)
     return hists
+
 
 
 #  compute joint histogram of Gaussian partial derivatives of the image in x and y direction

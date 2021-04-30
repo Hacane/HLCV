@@ -7,7 +7,7 @@ def dist_chi2(x,y):
   for i in range(0,len(x)):
     dist+=((y[i]-x[i])**2)/(y[i]+1)
   # print("1jjj"+str(dist))
-  return 1-dist
+  return dist
 
 # 
 # compute l2 distance between x and y
@@ -19,7 +19,7 @@ def dist_l2(x,y):
     dist+=(y[i]-x[i])**2
   dist=dist**0.5
   # print("2hh"+str(dist))
-  return 1-dist
+  return dist
 
 # 
 # compute intersection distance between x and y
@@ -29,8 +29,7 @@ def dist_intersect(x,y):
   dist=0
   for i in range(0,len(x)):
     dist+=min(y[i],x[i])
-  dist=len(x)-dist
-  # print("3hh"+str(dist))
+
   return 1-dist
   # your code here
 

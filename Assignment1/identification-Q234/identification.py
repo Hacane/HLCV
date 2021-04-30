@@ -172,51 +172,51 @@ num_correct = sum( best_match == range(len(query_images)) )
 print('number of correct matches: %d (%f)\n'% (num_correct, 1.0 * num_correct / len(query_images)))
 
 
-
-# bins=np.linspace(5,56,5)
-# Correct_Match_Table = np.zeros( (len(distance_types), len(hist_types),len(bins)) )
 # for didx in range(len(distance_types)):
 #   for hidx in range(len(hist_types)):
 #     for x in range(len(bins)): 
 #       print(distance_types[didx], hist_types[hidx], bins[x])  
 #       [best_match, D] = match_module.find_best_match(model_images, query_images, distance_types[didx], hist_types[hidx], int(bins[x]))
-#       # [best_match, D] = match_module.find_best_match(model_images, query_images, distance_types[didx], 'rg', int(bins[x]))
 #       num_correct = sum( best_match == range(len(query_images)) )
 #       print('number of correct matches: %d (%f)\n'% (num_correct, 1.0 * num_correct / len(query_images)))
-#       Correct_Match_Table[didx, hidx,x] = 1.0 * num_correct / len(query_images)
+#       Correct_Match_Table[didx, hidx,x] =  num_correct / len(query_images)
 #       print('\n')
 
+# #### np.shape(Correct_Match_Table)
+# Correct_Match_Table
+# np.savetxt("Correct_Match_Table.csv", Correct_Match_Table, delimiter=",")
 
 
 
 
 
-## plot recall_precision curves (Question 4)
 
-with open('model.txt') as fp:
-    model_images = fp.readlines()
-model_images = [x.strip() for x in model_images] 
+# ## plot recall_precision curves (Question 4)
 
-with open('query.txt') as fp:
-    query_images = fp.readlines()
-query_images = [x.strip() for x in query_images] 
+# with open('model.txt') as fp:
+#     model_images = fp.readlines()
+# model_images = [x.strip() for x in model_images] 
 
-eval_num_bins = 20;
+# with open('query.txt') as fp:
+#     query_images = fp.readlines()
+# query_images = [x.strip() for x in query_images] 
 
-
-plt.figure()
-rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'rg', eval_num_bins, ['r', 'g', 'b'])
-plt.title('RG histograms')
-plt.show()
+# eval_num_bins = 20;
 
 
-plt.figure()
-rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'rgb', eval_num_bins / 2, ['r', 'g', 'b'])
-plt.title('RGB histograms')
-plt.show()
+# plt.figure()
+# rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'rg', eval_num_bins, ['r', 'g', 'b'])
+# plt.title('RG histograms')
+# plt.show()
 
-plt.figure()
-rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'dxdy', eval_num_bins, ['r', 'g', 'b'])
-plt.title('dx/dy histograms')
-plt.show()
+
+# plt.figure()
+# rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'rgb', eval_num_bins / 2, ['r', 'g', 'b'])
+# plt.title('RGB histograms')
+# plt.show()
+
+# plt.figure()
+# rpc_module.compare_dist_rpc(model_images, query_images, ['chi2', 'intersect', 'l2'], 'dxdy', eval_num_bins, ['r', 'g', 'b'])
+# plt.title('dx/dy histograms')
+# plt.show()
 

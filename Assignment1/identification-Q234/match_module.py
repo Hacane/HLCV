@@ -39,7 +39,7 @@ def find_best_match(model_images, query_images, dist_type, hist_type, num_bins):
   for i in range(0,len(model_images)):
     for j in range(0,len(query_images)):
 
-
+      # print(np.shape(model_hists[i]),np.shape(model_hists[i]))
       D[i,j]=get_dist_by_name(model_hists[i],query_hists[j],dist_type)
 
   best_match=np.argmin(abs(D), axis=1)
