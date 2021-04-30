@@ -1,6 +1,7 @@
 import numpy as np
 from numpy import histogram as hist
-
+import matplotlib.pyplot as plt
+import math
 #  compute histogram of image intensities, histogram should be normalized so that sum of all values equals 1
 #  assume that image intensity varies between 0 and 255
 #
@@ -9,8 +10,33 @@ from numpy import histogram as hist
 def normalized_hist(img_gray, num_bins):
     assert len(img_gray.shape) == 2, 'image dimension mismatch'
     assert img_gray.dtype == 'float', 'incorrect image type'
+    maxPixel= np.max(img_gray)
+     
+     
+    plt.figure()
+    plt.imshow(img_gray,cmap='gray')
+     
+     
 
-    # your code here
+  
+    step = math.ceil(maxPixel)/num_bins
+    print("the bin width is= " + str( step))
+    hists = np.zeros(num_bins, dtype=int)
+    for i in range(0,img_gray[:,1].size):
+        for j in range(0,img_gray[1,:].size):
+            index=math.floor(img_gray[i][j]/step)
+            hists[index]+=1
+           
+     
+    hists=hists/np.sum(hists)
+    # Create bars
+   
+    bins = np.arange(num_bins)
+    plt.figure()
+    plt.bar(bins, hists)
+    plt.xlabel('histogram implemented by us' )
+    plt.show()
+    print("total sum of all histogram values is= " + str(np.sum(hists)))
     return hists, bins
 
 #  compute joint histogram for each color channel in the image, histogram should be normalized so that sum of all values equals 1
@@ -20,21 +46,24 @@ def normalized_hist(img_gray, num_bins):
 #  num_bins - number of bins used to discretize each channel, total number of bins in the histogram should be num_bins^3
 def rgb_hist(img_color, num_bins):
     assert len(img_color.shape) == 3, 'image dimension mismatch'
-    assert img_color.dtype == 'float', 'incorrect image type'
+    assert img_color.dtype == 'float' or 'numpy.float32', 'incorrect image type'
 
     # define a 3D histogram  with "num_bins^3" number of entries
     hists = np.zeros((num_bins, num_bins, num_bins))
-    
+    step=256/num_bins   
     # execute the loop for each pixel in the image 
     for i in range(img_color.shape[0]):
-        for i in range(img_color.shape[1]):
+        for j in range(img_color.shape[1]):
             # increment a histogram bin which corresponds to the value of pixel i,j; h(R,G,B)
             # ...
-            pass
+            r=math.floor(img_color[i,j,0]/step)
+            g=math.floor(img_color[i,j,1]/step)
+            b=math.floor(img_color[i,j,2]/step)
+            hists[r,g,b]+=1
 
     # normalize the histogram such that its integral (sum) is equal 1
     # your code here
-
+    hists/=np.sum(hists)
     hists = hists.reshape(hists.size)
     return hists
 
@@ -47,13 +76,23 @@ def rgb_hist(img_color, num_bins):
 def rg_hist(img_color, num_bins):
 
     assert len(img_color.shape) == 3, 'image dimension mismatch'
-    assert img_color.dtype == 'float', 'incorrect image type'
+    assert img_color.dtype == 'float' or 'numpy.float32', 'incorrect image type'
   
     # define a 2D histogram  with "num_bins^2" number of entries
     hists = np.zeros((num_bins, num_bins))
     
     # your code here
-
+    step=1/num_bins   
+    # execute the loop for each pixel in the image 
+    for i in range(img_color.shape[0]):
+        for j in range(img_color.shape[1]):
+            # increment a histogram bin which corresponds to the value of pixel i,j; h(R,G,B)
+            # ...
+            r=min( math.floor(img_color[i,j,0]*num_bins), num_bins-1)   #sometimes floor doesnt do its job in around .9999 values and it rounds up
+            g=min( math.floor(img_color[i,j,1]*num_bins), num_bins-1)
+             
+            hists[r,g]+=1
+    hists/=np.sum(hists)        
     hists = hists.reshape(hists.size)
     return hists
 
