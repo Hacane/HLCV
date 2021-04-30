@@ -140,7 +140,25 @@ eval_dist_type = 'intersect';
 eval_hist_type = 'rg';
 eval_num_bins = 30;
 
+
 [best_match, D] = match_module.find_best_match(model_images, query_images, eval_dist_type, eval_hist_type, eval_num_bins)
+plt.figure()
+fig, axes2d = plt.subplots(nrows=5, ncols=2,sharex=True, sharey=True,figsize=(6,6))
+for i, row in enumerate(axes2d):
+    for j, cell in enumerate(row):
+        if(j==0):
+            cell.imshow(np.array(Image.open(model_images[i])), vmin=0, vmax=255)
+            if i == len(axes2d) - 1:
+                cell.set_xlabel("Test image")
+        else:
+            cell.imshow(np.array(Image.open(query_images[best_match[i]])), vmin=0, vmax=255 )  
+            if i == len(axes2d) - 1:
+                cell.set_xlabel("Best Match")
+        if j == 0:
+            cell.set_ylabel("Test case: {0:d}".format(i + 1))
+plt.tight_layout()
+plt.show()
+
 
 
 ## visualize nearest neighbors (Question 3.b)
@@ -149,9 +167,28 @@ match_module.show_neighbors(model_images, query_images_vis, eval_dist_type, eval
 
 
 ## compute recognition percentage (Question 3.c)
-import ipdb; ipdb.set_trace()
+# import ipdb; ipdb.set_trace()
 num_correct = sum( best_match == range(len(query_images)) )
 print('number of correct matches: %d (%f)\n'% (num_correct, 1.0 * num_correct / len(query_images)))
+
+
+
+# bins=np.linspace(5,56,5)
+# Correct_Match_Table = np.zeros( (len(distance_types), len(hist_types),len(bins)) )
+# for didx in range(len(distance_types)):
+#   for hidx in range(len(hist_types)):
+#     for x in range(len(bins)): 
+#       print(distance_types[didx], hist_types[hidx], bins[x])  
+#       [best_match, D] = match_module.find_best_match(model_images, query_images, distance_types[didx], hist_types[hidx], int(bins[x]))
+#       # [best_match, D] = match_module.find_best_match(model_images, query_images, distance_types[didx], 'rg', int(bins[x]))
+#       num_correct = sum( best_match == range(len(query_images)) )
+#       print('number of correct matches: %d (%f)\n'% (num_correct, 1.0 * num_correct / len(query_images)))
+#       Correct_Match_Table[didx, hidx,x] = 1.0 * num_correct / len(query_images)
+#       print('\n')
+
+
+
+
 
 
 ## plot recall_precision curves (Question 4)

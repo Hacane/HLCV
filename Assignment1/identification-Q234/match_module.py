@@ -42,7 +42,7 @@ def find_best_match(model_images, query_images, dist_type, hist_type, num_bins):
 
       D[i,j]=get_dist_by_name(model_hists[i],query_hists[j],dist_type)
 
-  best_match=np.argmin(D, axis=1)
+  best_match=np.argmin(abs(D), axis=1)
   return best_match, D
 
 def compute_histograms(image_list, hist_type, hist_isgray, num_bins):
@@ -72,20 +72,37 @@ def compute_histograms(image_list, hist_type, hist_isgray, num_bins):
 
 def show_neighbors(model_images, query_images, dist_type, hist_type, num_bins):
 
-  plt.figure()
-
+  plt.figure()  
   num_nearest = 5  # show the top-5 neighbors
 
   # your code here
   best_match,D=find_best_match(model_images,query_images,dist_type,hist_type,num_bins)
 
-  # print(np.shape(D))
-  x=np.argpartition(D,num_nearest,axis=0)
-  # print(x)
-  # print(np.shape(x))
-  for i in range(0,len(query_images)):
-    for j in range(0,5):
-      plt.subplot(3,6,(i*6)+1); plt.imshow(np.array(Image.open(query_images[i])), vmin=0, vmax=255); plt.title(query_images[i])
-      plt.subplot(3,6,j+2+(i*6)); plt.imshow(np.array(Image.open(model_images[x[j][i]])), vmin=0, vmax=255); plt.title(Image.open(model_images[x[j][i]]))
+  x=np.argpartition(abs(D),num_nearest,axis=0)
+
+  fig, axes2d = plt.subplots(nrows=3, ncols=6,
+                             sharex=True, sharey=True,
+                             figsize=(6,6))
+
+  for i, row in enumerate(axes2d):
+      for j, cell in enumerate(row):
+          if(j==0):
+              cell.imshow(np.array(Image.open(query_images[i])), vmin=0, vmax=255)
+              if i == len(axes2d) - 1:
+                  cell.set_xlabel("Test image")
+          else:
+              cell.imshow(np.array(Image.open(model_images[x[j][i]])), vmin=0, vmax=255 )  
+              if i == len(axes2d) - 1:
+                  cell.set_xlabel("Prediction: {0:d}".format(j ))
+
+          if j == 0:
+              cell.set_ylabel("Test case: {0:d}".format(i + 1))
+
+  plt.tight_layout()
   plt.show()
+
+
+
+
+
 

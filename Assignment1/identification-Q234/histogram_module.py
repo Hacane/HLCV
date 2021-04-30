@@ -16,10 +16,9 @@ from gauss_module import gaussderiv
 def normalized_hist(img_gray, num_bins):
     assert len(img_gray.shape) == 2, 'image dimension mismatch'
     assert img_gray.dtype == 'float', 'incorrect image type'
-
-    bins=np.linspace(0,1,num_bins+1)
+    
     hists = np.zeros((num_bins))
-
+    bins=np.linspace(0,255,num_bins+1,endpoint=True)
     offset=255/num_bins
 
     # execute the loop for each pixel in the image 
@@ -43,7 +42,7 @@ def rgb_hist(img_color, num_bins):
     assert img_color.dtype == 'float', 'incorrect image type'
 
     # define a 3D histogram  with "num_bins^3" number of entries
-    hists = np.zeros((num_bins, num_bins, num_bins))
+    hists = np.zeros((num_bins, num_bins, num_bins+1))
     offset=255/num_bins
     # execute the loop for each pixel in the image 
     for i in range(img_color.shape[0]):
@@ -129,14 +128,14 @@ def is_grayvalue_hist(hist_name):
     assert False, 'unknown histogram type'
 
 
-def get_hist_by_name(img1_gray, num_bins_gray, dist_name):
-  if dist_name == 'grayvalue':
+def get_hist_by_name(img1_gray, num_bins_gray, hist_name):
+  if hist_name == 'grayvalue':
     return normalized_hist(img1_gray, num_bins_gray)
-  elif dist_name == 'rgb':
+  elif hist_name == 'rgb':
     return rgb_hist(img1_gray, num_bins_gray)
-  elif dist_name == 'rg':
+  elif hist_name == 'rg':
     return rg_hist(img1_gray, num_bins_gray)
-  elif dist_name == 'dxdy':
+  elif hist_name == 'dxdy':
     return dxdy_hist(img1_gray, num_bins_gray)
   else:
-    assert 'unknown distance: %s'%dist_name
+    assert 'unknown distance: %s'%hist_name
