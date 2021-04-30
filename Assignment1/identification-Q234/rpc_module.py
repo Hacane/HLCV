@@ -35,7 +35,7 @@ def plot_rpc(D, plot_color):
 
     # compute precision and recall values and append them to "recall" and "precision" vectors
     # your code here
-    for threshold in np.linspace(0, 0.4, 5001):
+    for threshold in np.linspace(0, 0.4, 500):
 
         tp = 0
         fp = 0
