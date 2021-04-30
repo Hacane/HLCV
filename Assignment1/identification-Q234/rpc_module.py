@@ -33,6 +33,8 @@ def plot_rpc(D, plot_color):
     d = d[sortidx]
     l = l[sortidx]
 
+    # compute precision and recall values and append them to "recall" and "precision" vectors
+    # your code here
     for threshold in np.linspace(0, 0.4, 5001):
 
         tp = 0
@@ -46,15 +48,13 @@ def plot_rpc(D, plot_color):
             tn = tn + int(~l[idx] & (d[idx] > threshold))
             fn = fn + int(l[idx] & (d[idx] > threshold))
 
-        if ((tp + fp == 0) | (tp + fn == 0)):
+        if (tp + fp == 0) | (tp + fn == 0):
             continue
-        p = tp / (tp + fp)
-        r = tp / (tp + fn)
+        P = tp / (tp + fp)
+        R = tp / (tp + fn)
 
-        precision.append(p)
-        recall.append(r)
-        # compute precision and recall values and append them to "recall" and "precision" vectors
-        # your code here
+        precision.append(P)
+        recall.append(R)
 
     plt.plot([1 - precision[i] for i in range(len(precision))], recall, plot_color + '-')
 
