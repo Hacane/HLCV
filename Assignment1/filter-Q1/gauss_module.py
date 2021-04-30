@@ -5,8 +5,8 @@ from scipy.signal import convolve2d
 
 def gauss(sigma):
 
-	x= np.linspace(-3*sigma,3*sigma,11)
-	Gx=1/(np.sqrt(2*np.pi)*sigma)*np.exp(-1*x**2/(2*sigma**2))
+	x= np.linspace(-3*math.ceil(sigma), 3*math.ceil(sigma), 3*2*math.ceil(sigma)+1,dtype='int') 
+	Gx=np.exp(-(x*x)/(2*(sigma*sigma)))/(sigma*np.sqrt(2*np.pi))
 	# Gx=Gx/np.max(Gx)
 	return Gx, x
 
@@ -23,8 +23,8 @@ def gaussderiv(img, sigma):
 
 def gaussdx(sigma):
 
-	x= np.linspace(-3*sigma,3*sigma,11)
-	D=-1/(np.sqrt(2*np.pi)*sigma**3)*x*np.exp(-1*x**2/(2*sigma**2))
+	x= np.linspace(-3*math.ceil(sigma), 3*math.ceil(sigma), 3*2*math.ceil(sigma)+1,dtype='int') 
+	D=-1*x*np.exp(-1*x**2/(2*sigma**2))/(np.sqrt(2*np.pi)*sigma**3)
 	return D, x
 
 def gaussianfilter(img, sigma):
