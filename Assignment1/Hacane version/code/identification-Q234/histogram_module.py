@@ -111,13 +111,37 @@ def dxdy_hist(img_gray, num_bins):
 
     # compute the first derivatives
     # ...
+    import sys
+    sys.path.insert(0, './code/filter-Q1')
+    from importlib import reload
+    import gauss_module 
+    gauss_module = reload(gauss_module)
 
+    sigma=7.0
+    imgDx, imgDy = gauss_module.gaussderiv(img_gray,sigma)
     # quantize derivatives to "num_bins" number of values
     # ...
+    range_x = np.amax(imgDx) - np.amin(imgDx)
+    range_y = np.amax(imgDy) - np.amin(imgDy)
+    min_x=np.amin(imgDx)
+    min_y=np.amin(imgDy)
+    for i in range(imgDx.shape[0]):
+        for j in range(imgDx.shape[1]):
+
+            imgDx[i,j]= math.ceil(((imgDx[i,j] - min_x)/range_x)*num_bins -1)                   #sometimes floor doesnt do its job in around .9999 values and it rounds up
+            imgDy[i,j]= math.ceil(((imgDy[i,j] - min_y)/range_y)*num_bins -1)    
+
 
     # define a 2D histogram  with "num_bins^2" number of entries
     hists = np.zeros((num_bins, num_bins))
-
+    for i in range(imgDx.shape[0]):
+        for j in range(imgDx.shape[1]):
+            # increment a histogram bin which corresponds to the value of pixel i,j; h(R,G,B)
+            # ...
+            dx=int(imgDx[i,j])   #sometimes floor doesnt do its job in around .9999 values and it rounds up
+            dy=int(imgDy[i,j])
+             
+            hists[dx,dy]+=1
     # ...
     
     hists = hists.reshape(hists.size)

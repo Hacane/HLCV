@@ -20,7 +20,10 @@ def gauss(sigma):
 def gaussderiv(img, sigma):
 
 	img=np.asarray(img)
-	greyImg =  np.dot(img[...,:3], [0.299, 0.587, 0.144])
+	if(len(img.shape)== 3):
+		greyImg =  np.dot(img[...,:3], [0.299, 0.587, 0.144])
+	else:
+		greyImg=img
 	imgDx =  np.copy(greyImg)
 	imgDy =  np.copy(greyImg)
 	D,x2 = gaussdx(sigma)
