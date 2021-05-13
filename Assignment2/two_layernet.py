@@ -93,11 +93,11 @@ class TwoLayerNet(object):
 
 		#defing softmax function
 		def softmax(x):
-			result=np.exp(x) / np.sum(np.exp(x), axis=0)
+			result=np.exp(x) / np.sum(np.exp(x))
 			return result
 
 		#calculation for hidden layer 
-		Z2=np.matmul(X,W1)+np.matlib.repmat(b1,np.shape(X)[0],1)
+		Z2=np.matmul(X,W1)+b1
 		A2=relu_func(Z2)
 
 		#calculations for output layer
@@ -125,12 +125,10 @@ class TwoLayerNet(object):
 		# Implement the loss for softmax output layer
 
 		#scores are normalized already
-		print(np.sum(scores,axis=1)) 
+		# print(np.sum(scores,axis=1)) 
 
 		#calculating cross entropy loss
-		loss_=np.zeros(len(scores))
-		for i in range(0, len(scores)):
-			loss_[i]=-1*math.log(scores[i][y[i]])
+		loss_=-1*np.log(np.choose(y, scores.T))
 
 
 		#computing L2 regularization for W1 and W2
@@ -150,8 +148,20 @@ class TwoLayerNet(object):
 		# grads['W1'] should store the gradient on W1, and be a matrix of same size #
 		#############################################################################
 		# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-		pass
-
+		y_=np.array(pd.get_dummies(pd.Series(y)))
+		dz3=(A3-y_)/np.shape(X)[0]
+		# print(np.shape(X)[0])
+		# print(A3)
+		# print(y_)
+		# print("dz3"+str(dz3))
+		dw2=np.matmul(A2.T,dz3)
+		db2=dz3
+		# d_relu = A2.copy()
+		# d_relu[d_relu<=0]=0   # Relu is indifferentiable at 0, so we are explicitly setting it to 0 for simplicity
+		# d_relu[d_relu>0]=1
+		dw1=np.matmul(np.matmul(X.T,dz3),W2.T)
+		db1=np.matmul(dz3,W2.T)
+		grads={'W2':dw2,'b2':db2,"W1":dw1,"b1":db1}		
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 		return loss, grads
