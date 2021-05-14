@@ -150,17 +150,15 @@ class TwoLayerNet(object):
 		# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 		y_=np.array(pd.get_dummies(pd.Series(y)))
 		dz3=(A3-y_)/np.shape(X)[0]
-		# print(np.shape(X)[0])
-		# print(A3)
-		# print(y_)
-		# print("dz3"+str(dz3))
-		dw2=np.matmul(A2.T,dz3)
-		db2=dz3
+		dw2=np.matmul(A2.T,dz3)+2*reg*W2
+
+		db2=np.sum(dz3,axis=0)
 		# d_relu = A2.copy()
 		# d_relu[d_relu<=0]=0   # Relu is indifferentiable at 0, so we are explicitly setting it to 0 for simplicity
 		# d_relu[d_relu>0]=1
-		dw1=np.matmul(np.matmul(X.T,dz3),W2.T)
-		db1=np.matmul(dz3,W2.T)
+
+		dw1=np.matmul(np.matmul(X.T,dz3),W2.T)+2*reg*W1
+		db1=np.sum(np.matmul(dz3,W2.T),axis=0)
 		grads={'W2':dw2,'b2':db2,"W1":dw1,"b1":db1}		
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
