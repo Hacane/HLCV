@@ -4,83 +4,87 @@ import torchvision
 import torchvision.transforms as transforms
 import sys
 
+
 def weights_init(m):
     if type(m) == nn.Linear:
         m.weight.data.normal_(0.0, 1e-3)
         m.bias.data.fill_(0.)
 
+
 def update_lr(optimizer, lr):
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
-#--------------------------------
-# Device configuration
-#--------------------------------
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print('Using device: %s'%device)
 
-#--------------------------------
+# --------------------------------
+# Device configuration
+# --------------------------------
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print('Using device: %s' % device)
+
+# --------------------------------
 # Hyper-parameters
-#--------------------------------
+# --------------------------------
 input_size = 32 * 32 * 3
-hidden_size = [50]
+hidden_size = 500
 num_classes = 10
 num_epochs = 10
 batch_size = 200
 learning_rate = 1e-3
 learning_rate_decay = 0.95
-reg=0.001
-num_training= 49000
-num_validation =1000
+reg = 0.001
+num_training = 49000
+num_validation = 1000
 train = True
 
-#-------------------------------------------------
+# -------------------------------------------------
 # Load the CIFAR-10 dataset
-#-------------------------------------------------
+# -------------------------------------------------
 norm_transform = transforms.Compose([transforms.ToTensor(),
                                      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                                      ])
 cifar_dataset = torchvision.datasets.CIFAR10(root='datasets/',
-                                           train=True,
-                                           transform=norm_transform,
-                                           download=False)
+                                             train=True,
+                                             transform=norm_transform,
+                                             download=True)
 
 test_dataset = torchvision.datasets.CIFAR10(root='datasets/',
-                                          train=False,
-                                          transform=norm_transform
-                                          )
-#-------------------------------------------------
+                                            train=False,
+                                            transform=norm_transform
+                                            )
+# -------------------------------------------------
 # Prepare the training and validation splits
-#-------------------------------------------------
+# -------------------------------------------------
 mask = list(range(num_training))
 train_dataset = torch.utils.data.Subset(cifar_dataset, mask)
 mask = list(range(num_training, num_training + num_validation))
 val_dataset = torch.utils.data.Subset(cifar_dataset, mask)
 
-#-------------------------------------------------
+# -------------------------------------------------
 # Data loader
-#-------------------------------------------------
+# -------------------------------------------------
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                            batch_size=batch_size,
                                            shuffle=True)
 
 val_loader = torch.utils.data.DataLoader(dataset=val_dataset,
-                                           batch_size=batch_size,
-                                           shuffle=False)
+                                         batch_size=batch_size,
+                                         shuffle=False)
 
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
                                           batch_size=batch_size,
                                           shuffle=False)
 
-#======================================================================================
+
+# ======================================================================================
 # Q4: Implementing multi-layer perceptron in PyTorch
-#======================================================================================
+# ======================================================================================
 # So far we have implemented a two-layer network using numpy by explicitly
 # writing down the forward computation and deriving and implementing the
 # equations for backward computation. This process can be tedious to extend to
 # large network architectures
 #
-# Popular deep-learining libraries like PyTorch and Tensorflow allow us to
+# Popular deep-learning libraries like PyTorch and Tensorflow allow us to
 # quickly implement complicated neural network architectures. They provide
 # pre-defined layers which can be used as building blocks to define our
 # network. They also enable automatic-differentiation, which allows us to
@@ -91,13 +95,13 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
 # library.  Please complete the code for the MultiLayerPerceptron, training and
 # evaluating the model. Once you can train the two layer model, experiment with
 # adding more layers and
-#--------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------
 
-#-------------------------------------------------
+# -------------------------------------------------
 # Fully connected neural network with one hidden layer
-#-------------------------------------------------
+# -------------------------------------------------
 class MultiLayerPerceptron(nn.Module):
-    def __init__(self, input_size, hidden_layers, num_classes):
+    def __init__(self, input_size, hidden_size, num_classes):
         super(MultiLayerPerceptron, self).__init__()
         #################################################################################
         # TODO: Initialize the modules required to implement the mlp with given layer   #
@@ -105,13 +109,13 @@ class MultiLayerPerceptron(nn.Module):
         # hidden_layers[-1] --> num_classes                                             #
         # Make use of linear and relu layers from the torch.nn module                   #
         #################################################################################
-        layes = []
+        layers = []
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-
+        self.fc1 = nn.Linear(input_size, hidden_size)  # first hidden layer
+        self.relu = nn.ReLU()  # activation function
+        self.output = nn.Linear(hidden_size, num_classes)  # output layer
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         self.layers = nn.Sequential(*layers)
-
     def forward(self, x):
         #################################################################################
         # TODO: Implement the forward pass computations                                 #
@@ -120,15 +124,17 @@ class MultiLayerPerceptron(nn.Module):
         # nn.CrossEntropyLoss() already integrates the softmax and the log loss together#
         #################################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-
+        out = self.fc1(x)
+        out = self.relu(out)
+        out = self.output(out)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return out
 
+
 model = MultiLayerPerceptron(input_size, hidden_size, num_classes).to(device)
+
 if train:
     model.apply(weights_init)
-
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
@@ -140,7 +146,7 @@ if train:
     for epoch in range(num_epochs):
         for i, (images, labels) in enumerate(train_loader):
             # Move tensors to the configured device
-            images = images.to(device)
+            images = images.reshape(-1, input_size).to(device)
             labels = labels.to(device)
             #################################################################################
             # TODO: Implement the training code                                             #
@@ -151,16 +157,19 @@ if train:
             #################################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+            # Forward Pass
+            prediction = model(images)
+            loss = criterion(prediction, labels)
 
-
-
-
-
+            # Backward Pass
+            model.zero_grad()
+            loss.backward()
+            optimizer.step()
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            if (i+1) % 100 == 0:
-                print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
-                       .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+            if (i + 1) % 100 == 0:
+                print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'
+                      .format(epoch + 1, num_epochs, i + 1, total_step, loss.item()))
 
         # Code to update the lr
         lr *= learning_rate_decay
@@ -169,7 +178,7 @@ if train:
             correct = 0
             total = 0
             for images, labels in val_loader:
-                images = images.to(device)
+                images = images.reshape(-1, input_size).to(device)
                 labels = labels.to(device)
                 ####################################################
                 # TODO: Implement the evaluation code              #
@@ -177,14 +186,13 @@ if train:
                 # 2. Get the most confident predicted class        #
                 ####################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-
-
+                prediction = model(images)
+                _, predicted = torch.max(prediction.data, 1)
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-            print('Validataion accuracy is: {} %'.format(100 * correct / total))
+            print('Validation accuracy is: {} %'.format(100 * correct / total))
 
     ##################################################################################
     # TODO: Now that you can train a simple two-layer MLP using above code, you can  #
@@ -207,15 +215,15 @@ else:
     # Run the test code once you have your by setting train flag to false
     # and loading the best model
 
-    best_model = None # torch.load()
-    mode.load_state_dict(best_model)
+    best_model = MultiLayerPerceptron(input_size, hidden_size, num_classes)
+    best_model.load_state_dict(torch.load('model.ckpt'))
     # Test the model
     # In test phase, we don't need to compute gradients (for memory efficiency)
     with torch.no_grad():
         correct = 0
         total = 0
         for images, labels in test_loader:
-            images = images.to(device)
+            images = images.reshape(-1, input_size).to(device)
             labels = labels.to(device)
             ####################################################
             # TODO: Implement the evaluation code              #
@@ -223,9 +231,8 @@ else:
             # 2. Get the most confident predicted class        #
             ####################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-
-
+            prediction = best_model(images)
+            _, predicted = torch.max(prediction.data, 1)
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
@@ -233,4 +240,3 @@ else:
                 break
 
         print('Accuracy of the network on the {} test images: {} %'.format(total, 100 * correct / total))
-
