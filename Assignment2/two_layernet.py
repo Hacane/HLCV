@@ -76,6 +76,8 @@ class TwoLayerNet(object):
 		# Unpack variables from the params dictionary
 		W1, b1 = self.params['W1'], self.params['b1']
 		W2, b2 = self.params['W2'], self.params['b2']
+ 
+
 		N, D = X.shape
 
 		# Compute the forward pass
@@ -99,10 +101,12 @@ class TwoLayerNet(object):
 		#calculation for hidden layer 
 		Z2=np.matmul(X,W1)+b1
 		A2=relu_func(Z2)
-
+		
+	 
 		#calculations for output layer
 		Z3=np.matmul(A2,W2)+b2
-		A3=np.array([[0.0]*3]*5)
+	 
+		A3=np.array([[0.0]*3]*len(X))
 		for i in range(0,len(Z3)):
 			A3[i]=softmax(Z3[i])
 
@@ -151,14 +155,30 @@ class TwoLayerNet(object):
 		y_=np.array(pd.get_dummies(pd.Series(y)))
 		dz3=(A3-y_)/np.shape(X)[0]
 		dw2=np.matmul(A2.T,dz3)+2*reg*W2
+		#dw2=A2.T.dot(dz3)+2*reg*W2
 
 		db2=np.sum(dz3,axis=0)
 		# d_relu = A2.copy()
 		# d_relu[d_relu<=0]=0   # Relu is indifferentiable at 0, so we are explicitly setting it to 0 for simplicity
 		# d_relu[d_relu>0]=1
 
-		dw1=np.matmul(np.matmul(X.T,dz3),W2.T)+2*reg*W1
-		db1=np.sum(np.matmul(dz3,W2.T),axis=0)
+		#dw1=np.matmul(np.matmul(X.T,dz3),W2.T)+2*reg*W1
+		#dw1=np.matmul(np.matmul(X.T,dz3),W2.T)
+		 
+		
+
+
+
+		db1=np.matmul(dz3,W2.T) 
+		z2=Z2
+		z2[z2<0]=0
+		z2[z2>0]=1
+		db1_notsummed = np.multiply(db1,z2)
+		db1=np.sum(db1_notsummed,axis=0)
+
+		dw1=np.matmul(X.T,db1_notsummed)
+		dw1=dw1+2*reg*W1
+		#db1[db1<0]=0
 		grads={'W2':dw2,'b2':db2,"W1":dw1,"b1":db1}		
 		# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -187,6 +207,7 @@ class TwoLayerNet(object):
 		"""
 		num_train = X.shape[0]
 		iterations_per_epoch = max(num_train / batch_size, 1)
+		 
 
 		# Use SGD to optimize the parameters in self.model
 		loss_history = []
@@ -202,7 +223,15 @@ class TwoLayerNet(object):
 			# them in X_batch and y_batch respectively.                             #
 			#########################################################################
 			# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-			pass
+			from sklearn.utils import shuffle
+			X_train, y_train = shuffle(X, y )
+	 
+
+			x = np.random.randint(5)
+			X_batch = X_train[0: 5]
+			y_batch = y_train[0: 5]
+	 
+
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 			# Compute loss and gradients using the current minibatch
@@ -216,8 +245,11 @@ class TwoLayerNet(object):
 			# stored in the grads dictionary defined above.                         #
 			#########################################################################
 			# *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-			pass
+			 
+			self.params['W1'] = self.params['W1'] - learning_rate * grads['W1']
+			self.params['b1'] = self.params['b1']- learning_rate * grads['b1']
+			self.params['W2'] = self.params['W2']- learning_rate * grads['W2']
+			self.params['b2'] = self.params['b2']- learning_rate * grads['b2']
 
 			# *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
